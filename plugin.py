@@ -76,6 +76,8 @@ class GitHistoryChannelLogger(callbacks.Plugin):
 
         try:
             repo = Repo(repo_path)
+            o = repo.remotes.origin
+            o.pull()
             commits = list(repo.iter_commits(branch, max_count=5))
             for commit in commits:
                 message = f"[{repo}] {commit.hexsha[:7]} - {commit.author.name}: {commit.message.strip()}"
