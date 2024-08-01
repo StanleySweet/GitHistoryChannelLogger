@@ -108,12 +108,13 @@ class GitHistoryChannelLogger(callbacks.Plugin):
                 self.log.info(f"No new commits found for repo {repo}")
                 return
 
-            self.__saveHash(repo, branch, commits[0].hexsha)
             for commit in commits:
                 author = u"\u200B".join(list(commit.author.name))
                 message = f"News from the Wiki by {author}: {commit.message.strip()}"
                 for channel in channels:
                     irc.queueMsg(ircmsgs.privmsg(channel, message))
+
+            self.__saveHash(repo, branch, commits[0].hexsha)
 
         except Exception as e:
             self.log.error(f"Error checking commits for repo {repo}:\n {e}")
@@ -125,10 +126,9 @@ class GitHistoryChannelLogger(callbacks.Plugin):
 
         return open(f"{repo}.{branch}.txt", 'r').read().strip()
 
-
     def __saveHash(self, repo, branch, hash):
 
-        self.log.info(f"Saving hash '{hash}' from {repo}.{branch}.txt")
+        self.log.info(f"Saving hash '{hash}' in {repo}.{branch}.txt")
         text_file = open(f"{repo}.{branch}.txt", "w")
         text_file.write(str(hash) + "\n")
         text_file.close()
