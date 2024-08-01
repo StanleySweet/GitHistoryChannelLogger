@@ -117,7 +117,7 @@ class GitHistoryChannelLogger(callbacks.Plugin):
             self.__saveHash(repo, branch, commits[0].hexsha)
 
         except Exception as e:
-            self.log.error(f"Error checking commits for repo {repo}:\n {e}")
+            self.log.error("An error occurred when logging commits: %s", e, exc_info=True)
 
     def __loadHash(self, repo, branch):
         if not os.path.isfile(f"{repo}.{branch}.txt"):
