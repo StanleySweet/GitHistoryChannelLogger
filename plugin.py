@@ -34,6 +34,7 @@ from supybot import world
 
 from git import Repo
 import time
+import os
 import threading
 
 class GitHistoryChannelLogger(callbacks.Plugin):
@@ -77,9 +78,15 @@ class GitHistoryChannelLogger(callbacks.Plugin):
             o = localRepo.remotes.origin
             o.pull()
             commits = list(localRepo.iter_commits(branch, max_count=5)).reverse()
+            if(len(commits) == 0):
+                return
+            
+            if(commits[0].hexsha == self.__loadHash(repo, branch)):
+                return
+
             self.__saveHash(repo, branch, commits[0].hexsha)
             for commit in commits:
-                message = f"News from the Wiki: ({u"\u200B".join(list(commit.author.name))}) {commit.message.strip()}"
+                message = f"News from the Wiki: ({u'\u200B'.join(list(commit.author.name))}) {commit.message.strip()}"
                 self.logCommit(channels, message)
         except Exception as e:
             self.log.error(f"Error checking commits for repo {repo}: {e}")
