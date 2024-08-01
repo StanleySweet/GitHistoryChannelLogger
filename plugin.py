@@ -77,7 +77,7 @@ class GitHistoryChannelLogger(callbacks.Plugin):
             localRepo = Repo(repo_path)
             o = localRepo.remotes.origin
             o.pull()
-            if branch not in repo.branches:
+            if branch not in localRepo.branches:
                 print(f"Branch '{branch}' does not exist.")
                 return
 
