@@ -78,17 +78,17 @@ class GitHistoryChannelLogger(callbacks.Plugin):
             o = localRepo.remotes.origin
             o.pull()
             if branch not in localRepo.branches:
-                print(f"Branch '{branch}' does not exist.")
+                self.log.info(f"Branch '{branch}' does not exist.")
                 return
 
             commits = list(localRepo.iter_commits(branch, max_count=5))
             commits.reverse()
             if(len(commits) == 0):
-                print(f"No commits found for repo {repo}")
+                self.log.info(f"No commits found for repo {repo}")
                 return
             
             if(commits[0].hexsha == self.__loadHash(repo, branch)):
-                print(f"No new commits found for repo {repo}")
+                self.log.info(f"No new commits found for repo {repo}")
                 return
 
             self.__saveHash(repo, branch, commits[0].hexsha)
@@ -109,7 +109,7 @@ class GitHistoryChannelLogger(callbacks.Plugin):
 
     def __saveHash(self, repo, branch, hash):
 
-        log.info(f"Saving hash '{hash}' from {repo}.{branch}.txt")
+        self.log.info(f"Saving hash '{hash}' from {repo}.{branch}.txt")
         text_file = open(f"{repo}.{branch}.txt", "w")
         text_file.write(str(hash) + "\n")
         text_file.close()
