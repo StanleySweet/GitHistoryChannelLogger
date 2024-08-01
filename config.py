@@ -37,12 +37,12 @@ GitHistoryChannelLogger = conf.registerPlugin('GitHistoryChannelLogger')
 
 # Register dynamic configuration for repositories
 def registerRepo(name):
-    repo = conf.registerGroup(GitHistoryChannelLogger, name)
-    conf.registerGlobalValue(repo, 'url',
+    conf.registerGlobalValue(GitHistoryChannelLogger, name)
+    conf.registerGlobalValue(GitHistoryChannelLogger[name], 'url',
         registry.String('', """URL of the repository."""))
-    conf.registerGlobalValue(repo, 'branch',
+    conf.registerGlobalValue(GitHistoryChannelLogger[name], 'branch',
         registry.String('master', """Branch to track."""))
-    conf.registerGlobalValue(repo, 'channels',
+    conf.registerGlobalValue(GitHistoryChannelLogger[name], 'channels',
         registry.SpaceSeparatedListOfStrings([], """Channels to log commits to."""))
 
 # Register existing repositories from configuration
