@@ -35,10 +35,7 @@ def configure(advanced):
 
 GitHistoryChannelLogger = conf.registerPlugin('GitHistoryChannelLogger')
 
-conf.registerGlobalValue(GitHistoryChannelLogger, 'repos',
-    registry.SpaceSeparatedListOfStrings([], """List of repository nicknames."""))
-
-# Create dynamic configuration for each repo nickname
+# Register dynamic configuration for repositories
 def registerRepo(name):
     repo = conf.registerGroup(GitHistoryChannelLogger, name)
     conf.registerGlobalValue(repo, 'url',
@@ -48,14 +45,17 @@ def registerRepo(name):
     conf.registerGlobalValue(repo, 'channels',
         registry.SpaceSeparatedListOfStrings([], """Channels to log commits to."""))
 
-# Retrieve existing repo nicknames and register them
-repos = GitHistoryChannelLogger.repos()
-for repo in repos:
-    registerRepo(repo)
+# Register existing repositories from configuration
+def loadExistingRepos():
+    repos = GitHistoryLogger.repos()
+    for repo in repos:
+        registerRepo(repo)
 
-# Hook to automatically register new repos
+# Register callback for new repositories
 def newRepo(value):
     registerRepo(value)
 
-GitHistoryChannelLogger.repos.addCallback(newRepo)
+GitHistoryLogger.repos.addCallback(newRepo)
 
+# Load repositories that are already configured
+loadExistingRepos()
