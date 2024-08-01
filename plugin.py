@@ -47,7 +47,7 @@ class GitHistoryChannelLogger(callbacks.Plugin):
         self.startCommitWatcher()
 
     def loadRepos(self):
-        repos_config = self.registryValue('repos').split()
+        repos_config = self.registryValue('repos')
         for repo in repos_config:
             url = self.registryValue(f'{repo}.url')
             branch = self.registryValue(f'{repo}.branch')
