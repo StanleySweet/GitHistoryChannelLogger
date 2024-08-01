@@ -118,7 +118,7 @@ class GitHistoryChannelLogger(callbacks.Plugin):
                 self.log.info(f"No new commits found for repo {repo}")
                 return
 
-            remote_url = remote.url 
+            remote_url = localRepo.remotes.origin.url 
             base_url = remote_url.rstrip('.wiki.git')  # Remove the .git suffix
             for commit in commits:
                 author = u"\u200B".join(list(commit.author.name))
