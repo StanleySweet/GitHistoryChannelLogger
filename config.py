@@ -47,7 +47,7 @@ def registerRepo(name):
 
 # Register existing repositories from configuration
 def loadExistingRepos():
-    repos = GitHistoryLogger.repos()
+    repos = GitHistoryChannelLogger.repos()
     for repo in repos:
         registerRepo(repo)
 
@@ -55,7 +55,7 @@ def loadExistingRepos():
 def newRepo(value):
     registerRepo(value)
 
-GitHistoryLogger.repos.addCallback(newRepo)
+GitHistoryChannelLogger.repos.addCallback(newRepo)
 
 # Load repositories that are already configured
 loadExistingRepos()
