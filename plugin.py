@@ -118,10 +118,16 @@ class GitHistoryChannelLogger(callbacks.Plugin):
                 self.log.info(f"No new commits found for repo {repo}")
                 return
 
+            remote_url = remote.url 
+            base_url = remote_url.rstrip('.wiki.git')  # Remove the .git suffix
             for commit in commits:
                 author = u"\u200B".join(list(commit.author.name))
                 clean_message = commit.message.strip().replace('\n', ' ')
-                message = f"News from the Wiki by {author}: {clean_message}"
+
+                commit_hash = commit.hexsha
+                commit_url = f"{base_url}/wiki/commit/{commit_hash}"
+
+                message = f"News from the Wiki by {author}: {clean_message} – {commit_url}" 
                 for channel in channels:
                     irc.queueMsg(ircmsgs.privmsg(channel, message))
 
