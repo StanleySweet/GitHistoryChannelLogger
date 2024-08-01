@@ -78,17 +78,17 @@ class GitHistoryChannelLogger(callbacks.Plugin):
             o = localRepo.remotes.origin
             o.pull()
             if branch not in repo.branches:
-                self.log.info(f"Branch '{branch}' does not exist.")
+                print(f"Branch '{branch}' does not exist.")
                 return
 
             commits = list(localRepo.iter_commits(branch, max_count=5))
             commits.reverse()
             if(len(commits) == 0):
-                self.log.info(f"No commits found for repo {repo}")
+                print(f"No commits found for repo {repo}")
                 return
             
             if(commits[0].hexsha == self.__loadHash(repo, branch)):
-                self.log.info(f"No new commits found for repo {repo}")
+                print(f"No new commits found for repo {repo}")
                 return
 
             self.__saveHash(repo, branch, commits[0].hexsha)
