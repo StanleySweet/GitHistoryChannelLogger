@@ -49,7 +49,7 @@ def registerRepo(name):
         registry.SpaceSeparatedListOfStrings([], """Channels to log commits to."""))
 
 # Register existing repositories from configuration
-repos = GitHistoryChannelLogger.repos()
+repos = GitHistoryChannelLogger.repos().split()
 for repo in repos:
     registerRepo(repo)
 
