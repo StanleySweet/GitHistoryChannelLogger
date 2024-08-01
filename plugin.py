@@ -30,7 +30,6 @@
 
 import supybot.ircmsgs as ircmsgs
 import supybot.callbacks as callbacks
-from supybot import world
 
 from git import Repo
 import time
