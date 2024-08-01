@@ -120,7 +120,7 @@ class GitHistoryChannelLogger(callbacks.Plugin):
             for commit in commits:
                 author = u"\u200B".join(list(commit.author.name))
                 clean_message = commit.message.strip().replace('\n', ' ')
-                message = f"News from the Wiki by {author}: {}"
+                message = f"News from the Wiki by {author}: {clean_message}"
                 for channel in channels:
                     irc.queueMsg(ircmsgs.privmsg(channel, message))
 
