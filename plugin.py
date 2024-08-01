@@ -37,8 +37,6 @@ import time
 import threading
 
 class GitHistoryChannelLogger(callbacks.Plugin):
-    threaded = True
-
     def __init__(self, irc):
         self.__parent = super(GitHistoryChannelLogger, self)
         self.__parent.__init__(irc)
@@ -75,15 +73,30 @@ class GitHistoryChannelLogger(callbacks.Plugin):
         channels = config['channels']
 
         try:
-            repo = Repo(repo_path)
-            o = repo.remotes.origin
+            localRepo = Repo(repo_path)
+            o = localRepo.remotes.origin
             o.pull()
-            commits = list(repo.iter_commits(branch, max_count=5))
+            commits = list(localRepo.iter_commits(branch, max_count=5)).reverse()
+            self.__saveHash(repo, branch, commits[0].hexsha)
             for commit in commits:
-                message = f"[{repo}] {commit.hexsha[:7]} - {commit.author.name}: {commit.message.strip()}"
+                message = f"News from the Wiki: ({u"\u200B".join(list(commit.author.name))}) {commit.message.strip()}"
                 self.logCommit(channels, message)
         except Exception as e:
             self.log.error(f"Error checking commits for repo {repo}: {e}")
+
+    def __loadHash(self, repo, branch):
+        if not os.path.isfile(f"{repo}.{branch}.txt"):
+            print(f"{repo}.{branch}.txt", "not found, starting at 0")
+            return "0"
+
+        return open(f"{repo}.{branch}.txt", 'r').read().strip()
+
+
+    def __saveHash(self, repo, branch, hash):
+
+        text_file = open(f"{repo}.{branch}.txt", "w")
+        text_file.write(str(hash) + "\n")
+        text_file.close()
 
     def logCommit(self, channels, message):
         for irc in world.ircs:
