@@ -47,16 +47,8 @@ def registerRepo(name):
         registry.SpaceSeparatedListOfStrings([], """Channels to log commits to."""))
 
 # Register existing repositories from configuration
-def loadExistingRepos():
-    repos = GitHistoryChannelLogger.repos()
-    for repo in repos:
-        registerRepo(repo)
+repos = GitHistoryChannelLogger.repos()
+for repo in repos:
+    registerRepo(repo)
 
-# Register callback for new repositories
-def newRepo(value):
-    registerRepo(value)
-
-GitHistoryChannelLogger.repos.addCallback(newRepo)
-
-# Load repositories that are already configured
-loadExistingRepos()
+GitHistoryChannelLogger.repos.addCallback(registerRepo)
