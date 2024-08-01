@@ -77,7 +77,8 @@ class GitHistoryChannelLogger(callbacks.Plugin):
             localRepo = Repo(repo_path)
             o = localRepo.remotes.origin
             o.pull()
-            commits = list(localRepo.iter_commits(branch, max_count=5)).reverse()
+            commits = list(localRepo.iter_commits(branch, max_count=5))
+            commits.reverse()
             if(len(commits) == 0):
                 return
             
