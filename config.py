@@ -35,6 +35,9 @@ def configure(advanced):
 
 GitHistoryChannelLogger = conf.registerPlugin('GitHistoryChannelLogger')
 
+conf.registerGlobalValue(GitHistoryChannelLogger, 'repos',
+        registry.SpaceSeparatedListOfStrings([], """Channels to log commits to."""))
+
 # Register dynamic configuration for repositories
 def registerRepo(name):
     group = conf.registerGroup(GitHistoryChannelLogger, name)
