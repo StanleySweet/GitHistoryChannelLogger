@@ -86,7 +86,8 @@ class GitHistoryChannelLogger(callbacks.Plugin):
 
             self.__saveHash(repo, branch, commits[0].hexsha)
             for commit in commits:
-                message = f"News from the Wiki: ({u'\u200B'.join(list(commit.author.name))}) {commit.message.strip()}"
+                author = u'\u200B'.join(list(commit.author.name))
+                message = f"News from the Wiki: ({author}) {commit.message.strip()}"
                 self.logCommit(channels, message)
         except Exception as e:
             self.log.error(f"Error checking commits for repo {repo}: {e}")
