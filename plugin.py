@@ -37,12 +37,14 @@ import os
 import threading
 
 class GitHistoryChannelLogger(callbacks.Plugin):
+    threaded = True
     def __init__(self, irc):
         self.__parent = super(GitHistoryChannelLogger, self)
         self.__parent.__init__(irc)
         self.repos = {}
         self.loadRepos()
         self.syncedChannels = []
+        self.shouldStop = False
         self.commit_watcher = None
 
     def do315(self, irc, msg):
@@ -83,7 +85,14 @@ class GitHistoryChannelLogger(callbacks.Plugin):
         while True:
             for repo, config in self.repos.items():
                 self.checkCommits(repo, config, irc)
-            time.sleep(60)
+            time.sleep(self.registryValue(f'{repo}.sleepTime'))
+
+
+    def die(self):
+        if self.commit_watcher is not None:
+            self.shouldStop = True
+            self.commit_watcher.join()
+        self.__parent.die()
 
     def checkCommits(self, repo, config, irc):
         repo_path = config['url']
@@ -110,7 +119,7 @@ class GitHistoryChannelLogger(callbacks.Plugin):
 
             for commit in commits:
                 author = u"\u200B".join(list(commit.author.name))
-                message = f"News from the Wiki by {author}: {commit.message.strip()}"
+                message = f"News from the Wiki by {author}: {commit.message.strip().replace('\n', ' ')}"
                 for channel in channels:
                     irc.queueMsg(ircmsgs.privmsg(channel, message))
 

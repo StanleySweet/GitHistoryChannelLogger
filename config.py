@@ -47,6 +47,8 @@ def registerRepo(name):
         registry.String('master', """Branch to track."""))
     conf.registerGlobalValue(group, 'channels',
         registry.SpaceSeparatedListOfStrings([], """Channels to log commits to."""))
+    conf.registerGlobalValue(group, 'sleepTime',
+        registry.NonNegativeInteger(30, _("Wait for this many seconds between checks.")))
 
 # Register existing repositories from configuration
 repos = GitHistoryChannelLogger.repos()
