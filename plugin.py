@@ -43,6 +43,7 @@ class GitHistoryChannelLogger(callbacks.Plugin):
         self.repos = {}
         self.loadRepos()
         self.syncedChannels = []
+        self.commit_watcher = None
 
     def do315(self, irc, msg):
 
