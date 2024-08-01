@@ -42,6 +42,7 @@ class GitHistoryChannelLogger(callbacks.Plugin):
         self.__parent.__init__(irc)
         self.repos = {}
         self.loadRepos()
+        self.syncedChannels = []
 
     def do315(self, irc, msg):
 
@@ -55,7 +56,7 @@ class GitHistoryChannelLogger(callbacks.Plugin):
             if channel not in self.syncedChannels:
                 return
 
-        print("all channels synced", msg.args[1])
+        print("Git History - all channels synced", msg.args[1])
 
         # Notify about recent phabricator stories
         if self.commit_watcher:
