@@ -82,13 +82,14 @@ class GitHistoryChannelLogger(callbacks.Plugin):
             }
 
     def watchCommits(self, irc):
-        while True:
+        while not self.shouldStop:
             for repo, config in self.repos.items():
                 self.checkCommits(repo, config, irc)
             time.sleep(self.registryValue(f'{repo}.sleepTime'))
 
 
     def die(self):
+        self.log.info("Killing GitHistoryChannelLogger bot.")
         if self.commit_watcher is not None:
             self.shouldStop = True
             self.commit_watcher.join()
