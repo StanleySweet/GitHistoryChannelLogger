@@ -47,11 +47,16 @@ class GitHistoryChannelLogger(callbacks.Plugin):
         self.startCommitWatcher()
 
     def loadRepos(self):
-        repos_config = self.registryValue('repos').split()
-        channels_config = self.registryValue('channels').split()
-
-        for repo, channel in zip(repos_config, channels_config):
-            self.repos[repo] = channel
+        repos_config = self.registryValue('repos')
+        for repo in repos_config:
+            url = self.registryValue(f'{repo}.url')
+            branch = self.registryValue(f'{repo}.branch')
+            channels = self.registryValue(f'{repo}.channels')
+            self.repos[repo] = {
+                'url': url,
+                'branch': branch,
+                'channels': channels
+            }
 
     def startCommitWatcher(self):
         self.commit_watcher = threading.Thread(target=self.watchCommits)
@@ -60,21 +65,28 @@ class GitHistoryChannelLogger(callbacks.Plugin):
 
     def watchCommits(self):
         while True:
-            for repo_path, channel in self.repos.items():
-                self.checkCommits(repo_path, channel)
+            for repo, config in self.repos.items():
+                self.checkCommits(repo, config)
             time.sleep(60)
 
-    def checkCommits(self, repo_path, channel):
-        repo = Repo(repo_path)
-        commits = list(repo.iter_commits('master', max_count=5))
-        for commit in commits:
-            message = f"[{repo_path}] {commit.hexsha[:7]} - {commit.author.name}: {commit.message.strip()}"
-            self.logCommit(channel, message)
+    def checkCommits(self, repo, config):
+        repo_path = config['url']
+        branch = config['branch']
+        channels = config['channels']
 
-    def logCommit(self, channel, message):
+        try:
+            repo = Repo(repo_path)
+            commits = list(repo.iter_commits(branch, max_count=5))
+            for commit in commits:
+                message = f"[{repo}] {commit.hexsha[:7]} - {commit.author.name}: {commit.message.strip()}"
+                self.logCommit(channels, message)
+        except Exception as e:
+            self.log.error(f"Error checking commits for repo {repo}: {e}")
+
+    def logCommit(self, channels, message):
         for irc in world.ircs:
-            for c in irc.state.channels:
-                if c == channel:
+            for channel in channels:
+                if channel in irc.state.channels:
                     irc.queueMsg(ircmsgs.privmsg(channel, message))
 
 Class = GitHistoryChannelLogger
