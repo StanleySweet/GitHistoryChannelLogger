@@ -43,7 +43,28 @@ class GitHistoryChannelLogger(callbacks.Plugin):
         self.__parent.__init__(irc)
         self.repos = {}
         self.loadRepos()
-        self.startCommitWatcher()
+
+    def do315(self, irc, msg):
+
+        print("do315 in ", msg.args[1])
+        print("current channels:", irc.state.channels.items())
+
+        self.syncedChannels.append(msg.args[1])
+
+        # Don't send messages before all channels were synced
+        for (channel, _) in irc.state.channels.items():
+            if channel not in self.syncedChannels:
+                return
+
+        print("all channels synced", msg.args[1])
+
+        # Notify about recent phabricator stories
+        if self.commit_watcher:
+            print("thread still already running")
+            return
+
+        self.commit_watcher = threading.Thread(target=self.watchCommits, args=(irc,), daemon=True)
+        self.commit_watcher.start()
 
     def loadRepos(self):
         repos_config = self.registryValue('repos')
@@ -57,18 +78,13 @@ class GitHistoryChannelLogger(callbacks.Plugin):
                 'channels': channels
             }
 
-    def startCommitWatcher(self):
-        self.commit_watcher = threading.Thread(target=self.watchCommits)
-        self.commit_watcher.daemon = True
-        self.commit_watcher.start()
-
-    def watchCommits(self):
+    def watchCommits(self, irc):
         while True:
             for repo, config in self.repos.items():
-                self.checkCommits(repo, config)
+                self.checkCommits(repo, config, irc)
             time.sleep(60)
 
-    def checkCommits(self, repo, config):
+    def checkCommits(self, repo, config, irc):
         repo_path = config['url']
         branch = config['branch']
         channels = config['channels']
@@ -94,8 +110,10 @@ class GitHistoryChannelLogger(callbacks.Plugin):
             self.__saveHash(repo, branch, commits[0].hexsha)
             for commit in commits:
                 author = u"\u200B".join(list(commit.author.name))
-                message = f"News from the Wiki: ({author}) {commit.message.strip()}"
-                self.logCommit(channels, message)
+                message = f"News from the Wiki by {author}: {commit.message.strip()}"
+                for channel in channels:
+                    irc.queueMsg(ircmsgs.privmsg(channel, message))
+
         except Exception as e:
             self.log.error(f"Error checking commits for repo {repo}:\n {e}")
 
@@ -113,12 +131,6 @@ class GitHistoryChannelLogger(callbacks.Plugin):
         text_file = open(f"{repo}.{branch}.txt", "w")
         text_file.write(str(hash) + "\n")
         text_file.close()
-
-    def logCommit(self, channels, message):
-        for irc in world.ircs:
-            for channel in channels:
-                if channel in irc.state.channels:
-                    irc.queueMsg(ircmsgs.privmsg(channel, message))
 
 Class = GitHistoryChannelLogger
 
