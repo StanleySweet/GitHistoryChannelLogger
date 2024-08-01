@@ -80,9 +80,11 @@ class GitHistoryChannelLogger(callbacks.Plugin):
             commits = list(localRepo.iter_commits(branch, max_count=5))
             commits.reverse()
             if(len(commits) == 0):
+                self.log.info(f"No commits found for repo {repo}")
                 return
             
             if(commits[0].hexsha == self.__loadHash(repo, branch)):
+                self.log.info(f"No new commits found for repo {repo}")
                 return
 
             self.__saveHash(repo, branch, commits[0].hexsha)
@@ -91,7 +93,7 @@ class GitHistoryChannelLogger(callbacks.Plugin):
                 message = f"News from the Wiki: ({author}) {commit.message.strip()}"
                 self.logCommit(channels, message)
         except Exception as e:
-            self.log.error(f"Error checking commits for repo {repo}: {e}")
+            self.log.error(f"Error checking commits for repo {repo}:\n {e}")
 
     def __loadHash(self, repo, branch):
         if not os.path.isfile(f"{repo}.{branch}.txt"):
@@ -103,6 +105,7 @@ class GitHistoryChannelLogger(callbacks.Plugin):
 
     def __saveHash(self, repo, branch, hash):
 
+        log.info(f"Saving hash '{hash}' from {repo}.{branch}.txt")
         text_file = open(f"{repo}.{branch}.txt", "w")
         text_file.write(str(hash) + "\n")
         text_file.close()
