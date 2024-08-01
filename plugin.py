@@ -49,7 +49,7 @@ class GitHistoryChannelLogger(callbacks.Plugin):
 
     def do315(self, irc, msg):
 
-        print("do315 in ", msg.args[1])
+        print("GitHistoryChannelLogger - do315 in ", msg.args[1])
         print("current channels:", irc.state.channels.items())
 
         self.syncedChannels.append(msg.args[1])
